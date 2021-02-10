@@ -1,40 +1,44 @@
 import {useState, useEffect } from 'react'
 
-
 const Result = () =>{
 
   const [line, setLine] = useState('')
-  const [result, setResult] = useState('');
+  const [color, setColor] = useState('');
+  let paramater = ''
 
-  function getResult(line){
-    let result = ''
-  
-    if(line === '山手線'){
-       result = '黄緑' 
+  const colorLogic = (paramater) =>{
+
+    if(paramater === '山手線'){
+      setColor('黄緑') 
     }else{
-       result = '不明'
+      setColor('不明')
     }
-  
-    return result; 
+    
   }
 
   useEffect(() => {
-    
-    const handleParamater = (e) =>{
 
-      setLine(e.detail);
-      const response = getResult(line);
-      setResult(response)
+    const handleParamater = (e) =>{
+      paramater = e.detail;
+      setLine(paramater);
+      colorLogic(paramater);
     }
+
     document.getElementById('result').addEventListener('setParamater', handleParamater);
   })
 
-  return(
-    <div className="result">
-      {line}は{result}です。
-    </div>
-
-  );
+  if(line !== ''){
+    return(
+      <div className="result">
+        {line}は{color}です。
+      </div>
+    )
+  }else{
+    return(
+      <div className="result">
+      </div>
+    )
+  }  
 
 }
 

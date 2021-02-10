@@ -1,5 +1,4 @@
 import {useState, useEffect } from 'react';
-import Result from './Result';
 
 const Search = () =>{
   const [paramater, setParamater] = useState('');
@@ -23,7 +22,6 @@ const Search = () =>{
         <input id="search" type="button" name="search" value="検索"/>
       </form>
       <span id="result">{paramater}</span>
-      <Result></Result> 
     </div>
   );    
 }
