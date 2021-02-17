@@ -4,11 +4,35 @@ const Result = () =>{
 
   const [change, setChange] = useState('');
   const [error, setError] = useState('');
+  const [title, setTitle] = useState('');
+  const [test2, setTest2] = useState('');
   const [sentence1, setSentence1] = useState('');
   const [sentence2, setSentence2] = useState('');
-  const [data, setData] = useState('');
   const results = [];
   const details = [];
+
+  //メソッド2：検索値を取得して入力エラーが無いかを確認する
+  const inputCheck = () =>{
+    const checkId = ['departure', 'destination', 'date', 'time'];
+    const word = ['出発駅', '到着駅', '日付', '時刻'];
+    let message = '';
+    //それぞれの検索値が、空白及びnullであれば入力エラーメッセージを作成する
+    for(let i in checkId){
+      const element = document.getElementById(checkId[i]).value;
+      if(element === '' | null){
+        if(message === ''){
+          message = message + word[i];
+        }else{
+          message = message + '、' + word[i];
+        }
+      }
+    }
+    //エラーメッセージを完成させstateに入れる
+    if(message !== ''){
+      message = message + 'を正しく入力してください';
+      setError(message);
+    }
+  }
   
   const makeResult = (json) =>{
     //検索結果表示部分のリストを初期化する。
@@ -42,7 +66,7 @@ const Result = () =>{
       )
 
       //経路詳細部分を表示する。
-      details.length = 0;
+      details.length = 0
       details.push(
         <li key={json[i]["id"]}>
           {json[i]["depHour"]} : {json[i]["depMinute"]} {json[i]["departure"]}<br />
@@ -50,7 +74,8 @@ const Result = () =>{
           {json[i]["arvHour"]} : {json[i]["arvMinute"]} {json[i]["destination"]}<br />   
         </li>
       )
-    }     
+
+    }
     //検索件数が0件であれば、結果無しエラーメッセージを表示する。
     if(json.length === 0){
       setError('検索結果が0件です。再度検索してください')     
@@ -59,25 +84,27 @@ const Result = () =>{
     }
   }
   
-  const searchAndFetch = (count) =>{
-    count = count + 1;
-    setData(count);  
-    const URL = 'http://localhost:8080/plus'
+  const searchAndFetch = () =>{
+    const data = new FormData(document.getElementById('form'));
+    const URL = 'http://localhost:8080/search'
     fetch(URL, {
       method: 'POST',
       mode: 'cors',
+      body: data
     })
     .then(res =>res.json())
     .then(json =>{
-      results.push(json["response"])
-      //makeResult(json);
+      makeResult(json);
+      if(error === ''){
+        makeSentences();
+        setTest2(results)
+      }    
     })
     .catch(error =>{
       //エラー内容をコンソールに表示させ、処理エラーメッセージを表示する。
       console.error('Error:', error)
       setError('処理エラーが発生しました。再度検索してください')
     })
-    
   }
   
   const makeSentences = () =>{
@@ -106,52 +133,45 @@ const Result = () =>{
     }else{
       sentenceB = time + ' 到着';
     }
+    
+    setTitle('検索結果')
     setSentence1(sentenceA);
     setSentence2(sentenceB);
   }
 
-  const handleData = (e) =>{
-    let count = 0;
-    const formData = e.detail;
-    
-    setSentence1('');
-    setSentence2('');
-    setError('');
-
-    searchAndFetch(count);
-    
-    
+  const handleSearch = () =>{
+    inputCheck();
     if(error === ''){
-      makeSentences();
+      setTitle('')
+      setSentence1('');
+      setSentence2('');
+      setError('');
+      searchAndFetch();
     }
     
-
   }
 
   useEffect(() => {
     //setFormDataイベントが発火したら、searchAndFetchメソッドを呼び出す
-    document.getElementById('data').addEventListener('setFormData', handleData);
+    document.getElementById('search').addEventListener('click', handleSearch);
+
   })
 
-  if(results.length !== 0){
-    return(
-      <div className="result">
-          <h2>検索結果</h2>
-          {sentence1}<br />
-          {sentence2}<br />
-          <ul>
-            {results}
-          </ul>  
-        </div>
-    )
-  }else{
-    return(
-      <div className="result">
+  return(
+    <div className="result">
+      <form>
+        <input id="search" type="button" name="search" value="検索" />  
+      </form>  
+      <h2>{title}</h2>
+        {sentence1}<br />
+        {sentence2}<br />
+        <ul>
+          {test2}
+        </ul>
         {error}
-        {data}
-      </div>
-    )
-  }  
+    </div>
+  )
+    
 
 }
 
