@@ -1,11 +1,11 @@
-import {useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const Search = () =>{
-  //useStateにstateを登録する
+  //stateとなる変数を設定する
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
 
-  //メソッド1：日付・時刻のデフォルト値となる、現在の日付・時刻を取得する
+  //timeCheckメソッド：日付・時刻のデフォルト値となる、現在の日付・時刻を取得する
   const timeCheck = () =>{
     //日付・時刻を取得する
     const now = new Date();
@@ -16,6 +16,7 @@ const Search = () =>{
     numArray.push(now.getHours());
     numArray.push(now.getMinutes());
     const strArray = [];
+
     //取得した数字を文字列に変換する（1桁の数値は10の位の0をつける）
     for(let i in numArray){
       let number = numArray[i];
@@ -26,14 +27,15 @@ const Search = () =>{
       }
       strArray.push(number);
     }
-    //日付・時刻を正しい表示形式に変換してstateに入れる
+
+    //日付・時刻を必要な表示形式に変換して、stateにセットする
     const strDate = strArray[0] + '-' + strArray[1]+ '-' + strArray[2];
     const strTime = strArray[3] + ':' + strArray[4];
     setDate(strDate);
     setTime(strTime);  
   }  
 
-  //ロードが終わったらメソッド1を呼び出し、現在時刻を取得する
+  //画面ロードが行われたらtimeCheckメソッドを呼び出し、現在時刻を取得する
   window.addEventListener('load', timeCheck)
 
   return(
