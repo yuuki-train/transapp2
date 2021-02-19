@@ -5,14 +5,15 @@ const Result = () =>{
   //stateとなる変数を設定する
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
-  const [change, setChange] = useState('');
   const [title, setTitle] = useState('');
   const [sentence1, setSentence1] = useState('');
   const [sentence2, setSentence2] = useState('');
+  const [jsonData, setJsonData] = useState('');
+  const [number, setNumber] = useState('');
 
   useEffect(() => {
 
-    //handleメソッド：入力エラーが無いかを確認し、結果に応じて適切な処理を行うメソッド
+    //handleSearchメソッド：入力エラーが無いかを確認し、結果に応じて適切な処理を行うメソッド
     const handleSearch = () =>{
 
       //出発駅、到着駅、日付、時刻の4つの必須入力項目で、入力エラーを確認する
@@ -62,6 +63,7 @@ const Result = () =>{
         makeResult(json);
         if(error === ''){
           makeSentences();
+          setJsonData(json);
         }    
       })
       //API側の処理エラーがある場合、コンソールに表示し、処理エラーメッセージをerrorにセットする
@@ -71,27 +73,29 @@ const Result = () =>{
       })
     }
 
+
     //makeResultメソッド：画面に表示される検索結果を構築する
     const makeResult = (json) =>{
       const results = [];
       const details = [];
+      const changeTrain = [];
 
       //検索件数分だけ繰り返す
       for(let i in json){
 
-        //大阪駅での乗り換えが必要：文言をchangeにセットする
-        //乗り換えが不要：初期化する（※この機能は、APIの処理を変更次第削除予定）
+        //大阪駅での乗り換えが必要：文言を配列に追加する
+        //乗り換えが不要：空文字列を配列に追加する（※この機能は、APIの処理を変更次第削除予定）
         if(json[i]['changeTrain'] !== 0){
-          setChange('（大阪駅乗り換え）');
+          changeTrain.push('（大阪駅乗り換え）');
         }else{
-          setChange('');
+          changeTrain.push('');
         }
 
         //経路詳細部分を配列に追加する
         details.push(
           <li key={json[i]["id"]}>
             {json[i]["depHour"]} : {json[i]["depMinute"]} {json[i]["departure"]}<br />
-            {json[i]["line"]} {json[i]["trainType"]}{change}<br />
+            {json[i]["line"]} {json[i]["trainType"]}{changeTrain[i]}<br />
             {json[i]["arvHour"]} : {json[i]["arvMinute"]} {json[i]["destination"]}<br />   
           </li>
         )
@@ -106,7 +110,7 @@ const Result = () =>{
                 第{j}経路 {json[i]["depHour"]} : {json[i]["depMinute"]} → {json[i]["arvHour"]} : {json[i]["arvMinute"]}<br />
                   {json[i]["totalMinutes"]}分、{json[i]["totalCharge"]}円（運賃{json[i]["fair"]}円、有料列車料金{json[i]["fee"]}円）、乗換{json[i]["changeTrain"]}回
                 <form>
-                  <input id="search" type="button" name="search" value="この経路を利用する" />   
+                  <input id={i} type="button" name={i} value="この経路を利用する"  onClick={handleSave}/>
                 </form>
               </summary>
               <ul>
@@ -122,12 +126,25 @@ const Result = () =>{
       if(json.length === 0){
         setError('検索結果が0件です。再度検索してください')     
       }
+
     }
 
-    //検索ボタンを押されたら、handleSearchメソッドを呼び出す   
+    const handleSave = (ev) =>{
+      const e = ev || window.event;
+      const elem = e.target || e.srcElement;
+      const id = elem.id;
+      
+      setNumber(id);  
+    }
+
+    //検索ボタンが押されたら、handleSearchメソッドを呼び出す   
     document.getElementById('search').addEventListener('click', handleSearch);
 
-  },[change, error])
+  },[error,jsonData])
+
+
+
+
 
 
   //makeSentencesメソッド：検索結果の上側に表示される、「検索結果」の見出しと検索条件の概略を構成する
@@ -174,6 +191,7 @@ const Result = () =>{
           {result}
         </ul>
         {error}
+        {number}
     </div>
   )
 }
