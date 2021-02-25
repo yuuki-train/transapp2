@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react'
+import Logic from './Logic'
 
 const Result = () =>{
   
@@ -8,10 +9,11 @@ const Result = () =>{
   const [title, setTitle] = useState('');
   const [sentence1, setSentence1] = useState('');
   const [sentence2, setSentence2] = useState('');
-  const [jsonData, setJsonData] = useState('');
-  const [number, setNumber] = useState('');
+  const [saveData, setSaveData] = useState('');
+
 
   useEffect(() => {
+    const logic = new Logic();
 
     //handleSearchメソッド：入力エラーが無いかを確認し、結果に応じて適切な処理を行うメソッド
     const handleSearch = () =>{
@@ -42,6 +44,7 @@ const Result = () =>{
         setTitle('');
         setSentence1('');
         setSentence2('');
+        setSaveData('');
     
         searchAndFetch();     
       }
@@ -60,10 +63,12 @@ const Result = () =>{
       //返り値をjson形式に変換する。その上でmakeResultメソッド及びmakeSentencesメソッドを呼び出し、画面に結果が表示できるようにする
       .then(res =>res.json())
       .then(json =>{
+        const arrayData = logic.makeData(json);
+        const jsonData = JSON.stringify(arrayData)
+        sessionStorage.setItem('jsonData', jsonData);
         makeResult(json);
         if(error === ''){
           makeSentences();
-          setJsonData(json);
         }    
       })
       //API側の処理エラーがある場合、コンソールに表示し、処理エラーメッセージをerrorにセットする
@@ -72,7 +77,6 @@ const Result = () =>{
         setError('処理エラーが発生しました。再度検索してください')
       })
     }
-
 
     //makeResultメソッド：画面に表示される検索結果を構築する
     const makeResult = (json) =>{
@@ -133,14 +137,16 @@ const Result = () =>{
       const e = ev || window.event;
       const elem = e.target || e.srcElement;
       const id = elem.id;
-      
-      setNumber(id);  
+      const jsonData = sessionStorage.getItem('jsonData');
+      const data = JSON.parse(jsonData);
+      const getId = data[id][0]
+      setSaveData(getId)
     }
 
     //検索ボタンが押されたら、handleSearchメソッドを呼び出す   
     document.getElementById('search').addEventListener('click', handleSearch);
 
-  },[error,jsonData])
+  },[error])
 
 
 
@@ -191,7 +197,7 @@ const Result = () =>{
           {result}
         </ul>
         {error}
-        {number}
+        {saveData}
     </div>
   )
 }

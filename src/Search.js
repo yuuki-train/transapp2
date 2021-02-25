@@ -1,38 +1,19 @@
 import { useState } from 'react';
+import Logic from './Logic'
 
 const Search = () =>{
   //stateとなる変数を設定する
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
+  const logic = new Logic();
 
   //timeCheckメソッド：日付・時刻のデフォルト値となる、現在の日付・時刻を取得する
   const timeCheck = () =>{
-    //日付・時刻を取得する
     const now = new Date();
-    const numArray = [];
-    numArray.push(now.getFullYear());
-    numArray.push(now.getMonth()+1);
-    numArray.push(now.getDate());
-    numArray.push(now.getHours());
-    numArray.push(now.getMinutes());
-    const strArray = [];
-
-    //取得した数字を文字列に変換する（1桁の数値は10の位の0をつける）
-    for(let i in numArray){
-      let number = numArray[i];
-      if(number < 10){        
-        number = '0' + String(number);
-      }else{
-        number = String(number); 
-      }
-      strArray.push(number);
-    }
-
-    //日付・時刻を必要な表示形式に変換して、stateにセットする
-    const strDate = strArray[0] + '-' + strArray[1]+ '-' + strArray[2];
-    const strTime = strArray[3] + ':' + strArray[4];
-    setDate(strDate);
-    setTime(strTime);  
+    const numDate= ['date', now.getFullYear(), now.getMonth()+1, now.getDate()];
+    const numTime= ['type', now.getHours(), now.getMinutes()];
+    setDate(logic.makeCurrent(numDate));
+    setTime(logic.makeCurrent(numTime));  
   }  
 
   //画面ロードが行われたらtimeCheckメソッドを呼び出し、現在時刻を取得する
