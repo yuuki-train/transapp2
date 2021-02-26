@@ -43,6 +43,32 @@ class Logic {
     return dataArray;
   }
 
+  saveData(id){
+    const dateData = JSON.parse(sessionStorage.getItem('dateData'));
+    const trainsData = JSON.parse(sessionStorage.getItem('trainsData'));
+    const trainData = trainsData[id];
+    const concatData = dateData.concat(trainData);
+    const data = JSON.stringify(concatData);
+
+    const URL = 'http://localhost:8080/save'
+    fetch(URL, {
+      method: 'POST',
+      mode: 'cors',
+      body: data
+    })
+    .then(res => res.json())
+    .then(json =>{
+      if(json[0]['result'] === 'OK'){
+        return alert('経路の保存が完了しました。');
+      }else{
+        return alert('サーバ側でエラーが発生しました。');
+      }
+    })
+    .catch(error =>{
+      console.error('Error:', error)
+      return alert('クライアント側でエラーが発生しました。');
+    })
+  }
 }
 
 export default Logic

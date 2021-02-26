@@ -9,8 +9,6 @@ const Result = () =>{
   const [title, setTitle] = useState('');
   const [sentence1, setSentence1] = useState('');
   const [sentence2, setSentence2] = useState('');
-  const [saveData, setSaveData] = useState('');
-
 
   useEffect(() => {
     const logic = new Logic();
@@ -44,7 +42,6 @@ const Result = () =>{
         setTitle('');
         setSentence1('');
         setSentence2('');
-        setSaveData('');
     
         searchAndFetch();     
       }
@@ -65,7 +62,7 @@ const Result = () =>{
       .then(json =>{
         const arrayData = logic.makeData(json);
         const jsonData = JSON.stringify(arrayData)
-        sessionStorage.setItem('jsonData', jsonData);
+        sessionStorage.setItem('trainsData', jsonData);
         makeResult(json);
         if(error === ''){
           makeSentences();
@@ -137,10 +134,9 @@ const Result = () =>{
       const e = ev || window.event;
       const elem = e.target || e.srcElement;
       const id = elem.id;
-      const jsonData = sessionStorage.getItem('jsonData');
-      const data = JSON.parse(jsonData);
-      const getId = data[id][0]
-      setSaveData(getId)
+      if(window.confirm('この経路を利用しますか？（経路情報が保存されます。）')){
+        logic.saveData(id);
+      }
     }
 
     //検索ボタンが押されたら、handleSearchメソッドを呼び出す   
@@ -155,6 +151,7 @@ const Result = () =>{
 
   //makeSentencesメソッド：検索結果の上側に表示される、「検索結果」の見出しと検索条件の概略を構成する
   const makeSentences = () =>{
+    let dateData = [];
     //入力パラメータ及び必要な値を取得する
     const date = document.getElementById('date').value;
     const year = date.slice(0,4);
@@ -170,6 +167,10 @@ const Result = () =>{
     dayCheck.setMonth(parseInt(month,10));
     dayCheck.setDate(parseInt(aDay,10));
     const day = "日月火水木金土".charAt(dayCheck.getDay()); 
+
+    dateData = [year, month, aDay, day];
+    const jsonData = JSON.stringify(dateData);
+    sessionStorage.setItem('dateData', jsonData);
 
     //入力パラメータの内容に応じて文章を組み立て、それぞれtitle, sentence1, sentence2にセットする
     const sentenceA = year +'年'+ month +'月'+ aDay +'日（'+ day + '） ' + departure + ' → ' + destination;
@@ -197,7 +198,6 @@ const Result = () =>{
           {result}
         </ul>
         {error}
-        {saveData}
     </div>
   )
 }
