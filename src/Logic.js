@@ -47,8 +47,7 @@ class Logic {
     const dateData = JSON.parse(sessionStorage.getItem('dateData'));
     const trainsData = JSON.parse(sessionStorage.getItem('trainsData'));
     const trainData = trainsData[id];
-    const concatData = dateData.concat(trainData);
-    const data = JSON.stringify(concatData);
+    const data = dateData.concat(trainData);
 
     const URL = 'http://localhost:8080/save'
     fetch(URL, {
