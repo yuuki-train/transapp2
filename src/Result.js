@@ -142,7 +142,7 @@ const Result = () =>{
     //検索ボタンが押されたら、handleSearchメソッドを呼び出す   
     document.getElementById('search').addEventListener('click', handleSearch);
 
-  },[error])
+  },[])
 
 
 
@@ -164,7 +164,7 @@ const Result = () =>{
     //日付に合わせて適切な曜日を取得する
     const dayCheck = new Date();
     dayCheck.setFullYear(parseInt(year,10));
-    dayCheck.setMonth(parseInt(month,10));
+    dayCheck.setMonth(parseInt(month, 10)-1);
     dayCheck.setDate(parseInt(aDay,10));
     const day = "日月火水木金土".charAt(dayCheck.getDay()); 
 
