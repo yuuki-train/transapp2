@@ -1,16 +1,25 @@
 class Logic {
 
-  makeCurrent(numArray){
-    const type = numArray[0];
+  makeCurrent(type){
+    const numArray = this.makeNumArray(type);
     numArray.shift();
-    const strArray = numArray.map(this.to2digits)
-    if(type === 'date'){
-      return this.makeCurrentDate(strArray)
-    }else{
-      return this.makeCurrentTime(strArray)
-    }
+    const strArray = numArray.map(this.to2digits);
+    return this.makeDateOrTime(type, strArray);
   }
 
+  makeNumArray(type){
+    const now = new Date();
+    if(type === 'time'){
+      return [type, now.getHours(), now.getMinutes()]; 
+    }else{
+      const array = [type, now.getFullYear(), now.getMonth()+1]
+      if(type === 'date'){
+        array.push(now.getDate())
+      }
+      return array
+    }
+  }
+  
   to2digits(value){
     if(value < 10){
       return '0' + String(value);
@@ -18,11 +27,23 @@ class Logic {
       return String(value); 
     }
   }
-
-  makeCurrentDate(array){
-    return array[0] + '-' + array[1]+ '-' + array[2];
+  
+  makeDateOrTime(type, strArray){
+    if((type === 'month')||(type === 'date')){
+      return this.makeCurrentDate(strArray)
+    }else{
+      return this.makeCurrentTime(strArray)
+    }
   }
 
+  makeCurrentDate(array){
+    let result = array[0] + '-' + array[1];
+    if(array[2] !== undefined){
+      result = result + '-' + array[2];
+    }
+    return result;
+  }
+  
   makeCurrentTime(array){
     return array[0] + ':' + array[1];
   }

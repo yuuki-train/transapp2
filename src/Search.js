@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Logic from './Logic'
+import Result from './Result';
 
 const Search = () =>{
   //stateとなる変数を設定する
@@ -7,20 +8,17 @@ const Search = () =>{
   const [time, setTime] = useState('');
   const logic = new Logic();
 
-  //timeCheckメソッド：日付・時刻のデフォルト値となる、現在の日付・時刻を取得する
-  const timeCheck = () =>{
-    const now = new Date();
-    const numDate= ['date', now.getFullYear(), now.getMonth()+1, now.getDate()];
-    const numTime= ['type', now.getHours(), now.getMinutes()];
-    setDate(logic.makeCurrent(numDate));
-    setTime(logic.makeCurrent(numTime));  
+  //dateAndTimeCheckメソッド：日付・時刻のデフォルト値となる、現在の日付・時刻を取得する
+  const dateAndTimeCheck = () =>{
+    setDate(logic.makeCurrent('date'));
+    setTime(logic.makeCurrent('time'));
   }  
 
-  //画面ロードが行われたらtimeCheckメソッドを呼び出し、現在時刻を取得する
-  window.addEventListener('load', timeCheck)
+  //画面ロードが行われたらdateAndTimeCheckメソッドを呼び出し、現在時刻を取得する
+  window.addEventListener('load', dateAndTimeCheck);
 
   return(
-    <div className="form">
+    <div className="search">
       <h2>経路検索</h2>
       <form id="form" name="searchForm">
         出発駅  <input id="departure" type="text" name="departure" defaultValue="天王寺" required/><br />
@@ -44,6 +42,7 @@ const Search = () =>{
           <option value="5">5件</option>
         </select><br /> 
       </form>
+      <Result/>
     </div>
   );    
 }
