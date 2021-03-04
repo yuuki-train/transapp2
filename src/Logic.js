@@ -1,5 +1,6 @@
 class Logic {
 
+  //makeCurrentメソッド：日付・時刻を取得し、文字列形式で返す。
   makeCurrent(type){
     const numArray = this.makeNumArray(type);
     numArray.shift();
@@ -47,6 +48,41 @@ class Logic {
   makeCurrentTime(array){
     return array[0] + ':' + array[1];
   }
+  
+  
+  //inputErrorCheckメソッド：必須入力項目で、入力エラーを確認する
+  inputErrorCheck(valueArray, wordArray, message){
+    for(let i in valueArray){
+      if(valueArray[i] === ""){
+        message = message + this.makeErrorMessage(wordArray[i], message);
+      }
+    }
+    return this.checkMessage(message);
+  }
+
+  makeErrorMessage(word, message){
+    let result = ''
+    if(message === ''){
+      result = word;
+    }else{
+      result ='、' + word;
+    }
+    return result;
+  }
+
+  checkMessage(message){
+    if(message !== ''){
+      message = message + 'を正しく入力してください';
+    }
+    return message;
+  }
+
+
+  
+
+
+
+
 
   makeData(json){
     const dataArray = [];

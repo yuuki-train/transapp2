@@ -16,35 +16,30 @@ const Result = () =>{
     //handleSearchメソッド：入力エラーが無いかを確認し、結果に応じて適切な処理を行うメソッド
     const handleSearch = () =>{
 
-      //出発駅、到着駅、日付、時刻の4つの必須入力項目で、入力エラーを確認する
-      const checkId = ['departure', 'destination', 'date', 'time'];
-      const word = ['出発駅', '到着駅', '日付', '時刻'];
-      let message = '';
-      //それぞれの値が空白及びnullであれば、入力エラーメッセージを作成する
-      for(let i in checkId){
-        const element = document.getElementById(checkId[i]).value;
-        if(element === '' | null){
-          if(message === ''){
-            message = message + word[i];
-          }else{
-            message = message + '、' + word[i];
-          }
+      const makeValueArray = (idArray) =>{
+        const valueArray = []
+        for(let i of idArray){
+          valueArray.push(document.getElementById(i).value);
         }
+        return valueArray;
       }
-      //エラーあり：入力エラーメッセージを完成させ、errorにセットする
-      //エラーなし：stateを初期化し、searchAndFetchメソッドを呼び出す
-      if(message !== ''){
-        message = message + 'を正しく入力してください';
-        setError(message);
-      }else{
+
+      const idArray = ['departure', 'destination', 'date', 'time'];
+      const valueArray = makeValueArray(idArray);
+      const wordArray = ['出発駅', '到着駅', '日付', '時刻'];
+      let message = '';
+      message = logic.inputErrorCheck(valueArray, wordArray, message);
+      setError(message);
+    
+      if(message === ""){
         setResult('');
-        setError('');
         setTitle('');
         setSentence1('');
         setSentence2('');
     
-        searchAndFetch();     
+        searchAndFetch();  
       }
+      
     }
 
     //searchAndFetchメソッド：fetchを用いてフォームのデータを検索APIに送り、返り値を基に結果表示処理を行う

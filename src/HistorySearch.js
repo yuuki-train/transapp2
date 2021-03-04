@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Logic from './Logic'
+import HistoryResult from './HistoryResult'
 
 const HistorySearch = () =>{
 　//stateとなる変数を設定する
@@ -14,7 +15,7 @@ const HistorySearch = () =>{
   window.addEventListener('load', monthCheck);
 
   return(
-    <div className="historyForm">
+    <div className="history">
       <h2>履歴及び利用額の確認</h2>
       <form id="historyForm" name="historyForm">
         検索する年月
@@ -25,9 +26,9 @@ const HistorySearch = () =>{
           <option value="dateDesc">日付降順</option>
           <option value="totalChargeAsc">金額昇順</option>
           <option value="totalChargeDesc">金額降順</option>
-        </select><br /> 
-        <input id="historySearch" type="button" name="historySearch" value="検索" />  
+        </select><br />   
       </form>
+      <HistoryResult />
     </div>
   );    
 }
