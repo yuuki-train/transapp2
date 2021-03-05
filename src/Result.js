@@ -9,17 +9,24 @@ const Result = () =>{
   const [title, setTitle] = useState('');
   const [sentence1, setSentence1] = useState('');
   const [sentence2, setSentence2] = useState('');
+  const logic = new Logic();
 
   useEffect(() => {
-    const logic = new Logic();
 
+    const getId = (id) =>{
+      return document.getElementById(id);
+    } 
+    const getValue = (id) =>{
+      return document.getElementById(id).value;
+    }
+    
     //handleSearchメソッド：入力エラーが無いかを確認し、結果に応じて適切な処理を行うメソッド
     const handleSearch = () =>{
 
       const makeValueArray = (idArray) =>{
         const valueArray = []
         for(let i of idArray){
-          valueArray.push(document.getElementById(i).value);
+          valueArray.push(getValue(i));
         }
         return valueArray;
       }
@@ -44,6 +51,18 @@ const Result = () =>{
 
     //searchAndFetchメソッド：fetchを用いてフォームのデータを検索APIに送り、返り値を基に結果表示処理を行う
     const searchAndFetch = () =>{
+      const data = new FormData(getId('form'));
+      const URL = 'http://localhost:8080/search';
+      const type = 'search';
+      const fetch = logic.postFetch(data, URL, type);
+      if(fetch === 'クライアント側でエラーが発生しました。' || '検索結果が0件です。再度検索してください'){
+        setError(fetch);
+      }else{
+        setResult(fetch);
+        makeSentences();
+      }
+
+      /*
       //フォームのデータを取得し、検索APIにPOST送信する
       const data = new FormData(document.getElementById('form'));
       const URL = 'http://localhost:8080/search'
@@ -68,9 +87,11 @@ const Result = () =>{
         console.error('Error:', error)
         setError('処理エラーが発生しました。再度検索してください')
       })
+      */
     }
 
     //makeResultメソッド：画面に表示される検索結果を構築する
+    /*
     const makeResult = (json) =>{
       const results = [];
       const details = [];
@@ -133,6 +154,7 @@ const Result = () =>{
         logic.saveData(id);
       }
     }
+    */
 
     //検索ボタンが押されたら、handleSearchメソッドを呼び出す   
     document.getElementById('search').addEventListener('click', handleSearch);
@@ -146,16 +168,23 @@ const Result = () =>{
 
   //makeSentencesメソッド：検索結果の上側に表示される、「検索結果」の見出しと検索条件の概略を構成する
   const makeSentences = () =>{
-    let dateData = [];
     //入力パラメータ及び必要な値を取得する
     const date = document.getElementById('date').value;
     const year = date.slice(0,4);
     const month = date.slice(5,7);
     const aDay = date.slice(8);
+    const day = logic.dayCheck(year, month, aDay);
+    logic.saveDate(year, month, aDay, day);
+    
     const time = document.getElementById('time').value;
     const departure = document.getElementById('departure').value;
     const destination = document.getElementById('destination').value;
+    const depOrArv = document.searchForm.depOrArv[0].checked;
 
+    setSentence1(logic.makeSentenceA(year, month, aDay, day, departure, destination));
+    setSentence2(logic.makeSentenceB(time, depOrArv));
+
+    /*
     //日付に合わせて適切な曜日を取得する
     const dayCheck = new Date();
     dayCheck.setFullYear(parseInt(year,10));
@@ -170,7 +199,7 @@ const Result = () =>{
     //入力パラメータの内容に応じて文章を組み立て、それぞれtitle, sentence1, sentence2にセットする
     const sentenceA = year +'年'+ month +'月'+ aDay +'日（'+ day + '） ' + departure + ' → ' + destination;
     let sentenceB = '';
-    if (document.searchForm.depOrArv[0].checked){
+    if (depOrArv){
       sentenceB = time + ' 出発';
     }else{
       sentenceB = time + ' 到着';
@@ -178,6 +207,7 @@ const Result = () =>{
     setTitle('検索結果')
     setSentence1(sentenceA);
     setSentence2(sentenceB);
+    */
   }
 
   //検索ボタンをResult.js側に持たせ、その下にtitle, sentece1, sentence2, result, errorを表示する
