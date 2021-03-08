@@ -78,21 +78,7 @@ class Logic {
   }
 
 
-  //postFetchメソッド：fetchを用いてフォームのデータをPOSTで検索APIに送り、返り値を基に結果表示処理を行う
-  postFetch = (data, URL, type) =>{
-    let fetchResult = null;
-    fetch(URL, {method: 'POST', mode: 'cors', body: data})
-    .then(res =>res.json())
-    .then(jsonParam =>{
-      fetchResult = this.dispatchFetch(type, jsonParam);
-    })
-    .catch(error =>{
-      console.error('Error:', error)
-      fetchResult = 'クライアント側でエラーが発生しました。';
-    })
-    return fetchResult;
-  }
-  
+
   dispatchFetch = (type, jsonParam) =>{
     if(type === 'search'){
       return this.fetchResultForSearch(jsonParam);
@@ -107,15 +93,7 @@ class Logic {
     const arrayData = this.makeData(jsonParam);
     const jsonData = JSON.stringify(arrayData); 
     sessionStorage.setItem('trainsData', jsonData);
-    return this.resultErrorCheck(jsonData);
-  }
-
-  fetchResultForSave = (jsonParam) =>{
-    if(jsonParam[0]['result'] === 'OK'){
-      return alert('経路の保存が完了しました。');
-    }else{
-      return alert('サーバ側でエラーが発生しました。');
-    }
+    return this.resultErrorCheck(jsonParam);
   }
 
   fetchResultForHistory = (jsonParam) =>{
@@ -124,35 +102,51 @@ class Logic {
 
   }
 
-  resultErrorCheck = (jsonData) =>{
+  makeData(json){
+    const dataArray = [];
+    const key = ['id', 'line', 'departure', 'depHour', 'depMinute', 'depTime', 
+    'destination', 'arvHour', 'arvMinute', 'arvTime', 'totalMinutes', 'trainType', 
+    'totalCharge', 'fair', 'fee', 'changeTrain']
+
+    for(let i in json){
+      const valueArray = [];
+      for(let j of key){
+        valueArray.push(json[i][j]);
+      }  
+      dataArray.push(valueArray);   
+    }
+    return dataArray;
+  }
+
+  resultErrorCheck = (jsonParam) =>{
     //検索件数が0件の場合は、結果無しエラーメッセージをerrorにセットする
-    if(jsonData.length === 0){
+    if(jsonParam.length === 0){
       return '検索結果が0件です。再度検索してください'     
     }else{
-      return this.makeResult(jsonData);
+      return this.makeResult(jsonParam);
     }
   }
 
 
-  makeResult = (jsonData) =>{
+  makeResult = (jsonParam) =>{
     let searchResults = [];
     let searchDetails = [];
     let changeTrain = [];
     //検索件数分だけ繰り返す
-    for(let i in jsonData){
-      changeTrain = this.inputChangeTrain(jsonData, i, changeTrain);
-      searchDetails = this.makeDetails(jsonData, i, searchDetails, changeTrain);
+    for(let i in jsonParam){
+      changeTrain = this.inputChangeTrain(jsonParam, i, changeTrain);
+      searchDetails = this.makeDetails(jsonParam, i, searchDetails, changeTrain);
       const routeCounter = this.makeRouteCounter(i);
-      searchResults = this.makeSearchResults(jsonData, i, searchResults, searchDetails, routeCounter);    
+      searchResults = this.makeSearchResults(jsonParam, i, searchResults, searchDetails, routeCounter);    
     }
     return searchResults;
   }
 
-  inputChangeTrain = (jsonData, i, changeTrain) =>{
+  inputChangeTrain = (jsonParam, i, changeTrain) =>{
     //大阪駅での乗り換えが必要：文言を配列に追加する
     //乗り換えが不要：空文字列を配列に追加する（※この機能は、APIの処理を変更次第削除予定）
     const returnArray = changeTrain;
-    if(jsonData[i]['changeTrain'] !== 0){
+    if(jsonParam[i]['changeTrain'] !== 0){
       returnArray.push('（大阪駅乗り換え）');
     }else{
       returnArray.push('');
@@ -160,13 +154,13 @@ class Logic {
     return returnArray;
   }
 
-  makeDetails = (jsonData, i, searchDetails, changeTrain) =>{
+  makeDetails = (jsonParam, i, searchDetails, changeTrain) =>{
     const returnArray = searchDetails;
     returnArray.push(
-      <li key={jsonData[i]["id"]}>
-        {jsonData[i]["depHour"]} : {jsonData[i]["depMinute"]} {jsonData[i]["departure"]}<br />
-        {jsonData[i]["line"]} {jsonData[i]["trainType"]}{changeTrain[i]}<br />
-        {jsonData[i]["arvHour"]} : {jsonData[i]["arvMinute"]} {jsonData[i]["destination"]}<br />   
+      <li key={jsonParam[i]["id"]}>
+        {jsonParam[i]["depHour"]} : {jsonParam[i]["depMinute"]} {jsonParam[i]["departure"]}<br />
+        {jsonParam[i]["line"]} {jsonParam[i]["trainType"]}{changeTrain[i]}<br />
+        {jsonParam[i]["arvHour"]} : {jsonParam[i]["arvMinute"]} {jsonParam[i]["destination"]}<br />   
       </li>
     )   
     return returnArray;
@@ -177,14 +171,14 @@ class Logic {
       return numI + 1;
   }
 
-  makeSearchResults = (jsonData, i, searchResults, searchDetails, routeCounter) =>{
+  makeSearchResults = (jsonParam, i, searchResults, searchDetails, routeCounter) =>{
     const returnArray = searchResults;
     returnArray.push(
-      <li key={jsonData[i]["id"]}>  
+      <li key={jsonParam[i]["id"]}>  
         <details>
           <summary>
-            第{routeCounter}経路 {jsonData[i]["depHour"]} : {jsonData[i]["depMinute"]} → {jsonData[i]["arvHour"]} : {jsonData[i]["arvMinute"]}<br />
-              {jsonData[i]["totalMinutes"]}分、{jsonData[i]["totalCharge"]}円（運賃{jsonData[i]["fair"]}円、有料列車料金{jsonData[i]["fee"]}円）、乗換{jsonData[i]["changeTrain"]}回
+            第{routeCounter}経路 {jsonParam[i]["depHour"]} : {jsonParam[i]["depMinute"]} → {jsonParam[i]["arvHour"]} : {jsonParam[i]["arvMinute"]}<br />
+              {jsonParam[i]["totalMinutes"]}分、{jsonParam[i]["totalCharge"]}円（運賃{jsonParam[i]["fair"]}円、有料列車料金{jsonParam[i]["fee"]}円）、乗換{jsonParam[i]["changeTrain"]}回
             <form>
               <input id={i} type="button" name={i} value="この経路を利用する"  onClick={this.handleSave}/>
             </form>
@@ -232,36 +226,42 @@ class Logic {
     const e = ev || window.event;
     const elem = e.target || e.srcElement;
     const id = elem.id;
-    if(window.confirm('この経路を利用しますか？（経路情報が保存されます。）')){
-      this.saveSearchData(id);
-    }
+    this.saveSearchData(id);
+
   }
 
-  makeData(json){
-    const dataArray = [];
-    const key = ['id', 'line', 'departure', 'depHour', 'depMinute', 'depTime', 
-    'destination', 'arvHour', 'arvMinute', 'arvTime', 'totalMinutes', 'trainType', 
-    'totalCharge', 'fair', 'fee', 'changeTrain']
-
-    for(let i in json){
-      const valueArray = [];
-      for(let j of key){
-        valueArray.push(json[i][j]);
-      }  
-      dataArray.push(valueArray);   
-    }
-    return dataArray;
-  }
-
-  saveSearchData(id){
+  getSaveData(id){
     const dateData = JSON.parse(sessionStorage.getItem('dateData'));
     const trainsData = JSON.parse(sessionStorage.getItem('trainsData'));
     const trainData = trainsData[id];
-    const data = dateData.concat(trainData);
-    const URL = 'http://localhost:8080/save'
-    const type = 'save'
-    return this.postFetch(data, URL, type);
+    return dateData.concat(trainData);
   }
+
+  saveSearchData(id){
+    if(window.confirm('この経路を利用しますか？（経路情報が保存されます。）')){
+      const data = this.getSaveData(id);
+      const URL = 'http://localhost:8080/save'
+      const type = 'save'
+      fetch(URL, {method: 'POST', mode: 'cors', body: data})
+      .then(res =>res.json())
+      .then(jsonParam =>{
+        this.dispatchFetch(type, jsonParam);
+      })
+      .catch(error =>{
+        console.error('Error:', error)
+        alert('クライアント側でエラーが発生しました。');
+      })
+    }
+  }
+
+  fetchResultForSave = (jsonParam) =>{
+    if(jsonParam[0]['result'] === 'OK'){
+      alert('経路の保存が完了しました。');
+    }else{
+      alert('サーバ側でエラーが発生しました。');
+    }
+  }
+
 }
 
 export default Logic

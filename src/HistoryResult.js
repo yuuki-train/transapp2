@@ -3,19 +3,44 @@ import Logic from './Logic'
 
 const HistoryResult = () =>{
 　//stateとなる変数を設定する
-  const [message, setMessage] = useState('');
+  const [result, setResult] = useState('');
   const [error, setError] = useState('');
-  const logic = new Logic();
-
+  
   useEffect(() =>{
+    const logic = new Logic();
+
+    const getId = (id) =>{
+      return document.getElementById(id);
+    } 
+
     const handleHistorySearch = () =>{
       const idArray = ['month'];
       const valueArray = [document.getElementById(idArray[0]).value];
       const wordArray = ['年月'];
       let message = '';
-      setError(logic.inputErrorCheck(valueArray, wordArray, message));
+      message = logic.inputErrorCheck(valueArray, wordArray, message);
+      setError(message);   
+      if(message === ""){
+        searchAndFetch();  
+      }   
       
     } 
+
+    const searchAndFetch = () =>{
+      const data = new FormData(getId('historyForm'));
+      const URL = 'http://localhost:8080/history';
+      const type = 'history';
+      fetch(URL, {method: 'POST', mode: 'cors', body: data})
+      .then(res =>res.json())
+      .then(jsonParam =>{
+        const fetchResult = logic.dispatchFetch(type, jsonParam);
+        setResult(fetchResult);
+      })
+      .catch(error =>{
+        console.error('Error:', error)
+        setError('クライアント側でエラーが発生しました。');
+      })
+    }
     
     document.getElementById("historySearch").addEventListener('click', handleHistorySearch);
 
@@ -26,7 +51,7 @@ const HistoryResult = () =>{
       <form>
         <input id="historySearch" type="button" name="historySearch" value="履歴表示" />  
       </form>
-      {message}<br />
+      {result}<br />
       {error}
     </div>
   );    
