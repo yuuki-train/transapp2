@@ -97,7 +97,11 @@ class Logic {
   }
 
   fetchResultForHistory = (jsonParam) =>{
-
+    if(jsonParam[0]['id'] == 2){
+      return "OK";
+    }else{
+    return "Error";
+    }
 
 
   }
