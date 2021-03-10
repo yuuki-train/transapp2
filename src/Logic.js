@@ -81,29 +81,19 @@ class Logic {
 
   dispatchFetch = (type, jsonParam) =>{
     if(type === 'search'){
-      return this.fetchResultForSearch(jsonParam);
+      return this.fetchResultForSearch(jsonParam, type);
     }else if(type === 'save'){
       return this.fetchResultForSave(jsonParam);
     }else{
-      return this.fetchResultForHistory(jsonParam);
+      return this.fetchResultForHistory(jsonParam, type);
     }
   }
 
-  fetchResultForSearch = (jsonParam) =>{
+  fetchResultForSearch = (jsonParam,type) =>{
     const arrayData = this.makeData(jsonParam);
     const jsonData = JSON.stringify(arrayData); 
     sessionStorage.setItem('trainsData', jsonData);
-    return this.resultErrorCheck(jsonParam);
-  }
-
-  fetchResultForHistory = (jsonParam) =>{
-    if(jsonParam[0]['id'] == 2){
-      return "OK";
-    }else{
-    return "Error";
-    }
-
-
+    return this.resultErrorCheck(jsonParam, type);
   }
 
   makeData(json){
@@ -122,17 +112,21 @@ class Logic {
     return dataArray;
   }
 
-  resultErrorCheck = (jsonParam) =>{
+  resultErrorCheck = (jsonParam, type) =>{
     //検索件数が0件の場合は、結果無しエラーメッセージをerrorにセットする
     if(jsonParam.length === 0){
       return '検索結果が0件です。再度検索してください'     
     }else{
-      return this.makeResult(jsonParam);
+      if(type === "search"){
+        return this.makeSearchResult(jsonParam);
+      }else{
+        return this.makeHistoryResult(jsonParam);
+      }
     }
   }
 
 
-  makeResult = (jsonParam) =>{
+  makeSearchResult = (jsonParam) =>{
     let searchResults = [];
     let searchDetails = [];
     let changeTrain = [];
@@ -264,6 +258,39 @@ class Logic {
     }else{
       alert('サーバ側でエラーが発生しました。');
     }
+  }
+
+  fetchResultForHistory = (jsonParam, type) =>{
+    return this.resultErrorCheck(jsonParam, type);
+  }
+
+
+  makeHistoryResult = (jsonParam) =>{
+    let changeTrain = []
+    const historyOutput = null;
+    //検索件数分だけ繰り返す
+    for(let i in jsonParam){
+      changeTrain = this.inputChangeTrain(jsonParam, i, changeTrain);
+      historyOutput.map((jsonParam, i, changeTrain) =>{
+        return(
+          <tr key={jsonParam[i]["id"]}>
+          <td>{jsonParam[i]["year"]}年{jsonParam[i]["month"]}月{jsonParam[i]["aDay"]}日({jsonParam[i]["day"]})</td> 
+          <td>{jsonParam[i]["depHour"]} : {jsonParam[i]["depMinute"]} → {jsonParam[i]["arvHour"]} : {jsonParam[i]["arvMinute"]}</td>
+          <td>{jsonParam[i]["departure"]} → {jsonParam[i]["arvHour"]}{changeTrain[i]}</td>
+          <td>{jsonParam[i]["totalCharge"]}</td>
+          <td>{jsonParam[i]["fair"]}</td> 
+          <td>{jsonParam[i]["fee"]}</td> 
+          </tr>
+        )
+      }) 
+    }
+    return historyOutput;
+  }
+
+  getMonth(yearAndMonth){
+    const year = yearAndMonth.slice(0,4);
+    const month = yearAndMonth.slice(5);
+    return '検索履歴　' + year + '年' + month + '月'
   }
 
 }
