@@ -44,7 +44,7 @@ const HistoryResult = () =>{
           setError(fetchResult);
         }else{
           setResult(fetchResult);
-          const yearAndMonth = getValue("month")
+          const yearAndMonth = getValue("month");
           setTitle(logic.getYearAndMonth(yearAndMonth));
         }
         
@@ -75,10 +75,14 @@ const HistoryResult = () =>{
         <form>
           <input id="historySearch" type="button" name="historySearch" value="履歴表示" />  
         </form>
-        <table>
+        <table border="1">
           <caption>{title}</caption>
-          <tr><th>日付</th> <th>時刻</th> <th>経路</th>　<th>合計金額</th>　<th>運賃</th>　<th>料金</th></tr>
-          {result}
+          <thead>
+            <tr><th>日付</th><th>時刻</th><th>経路</th><th>合計金額</th><th>運賃</th><th>料金</th></tr>
+          </thead>
+          <tbody>
+            {result}
+          </tbody>
         </table>
         <br />
         {error}

@@ -267,27 +267,25 @@ class Logic {
 
   makeHistoryResult = (jsonParam) =>{
     let changeTrain = []
-    const historyOutput = null;
+    const paramArray = jsonParam;
     //検索件数分だけ繰り返す
-    for(let i in jsonParam){
-      changeTrain = this.inputChangeTrain(jsonParam, i, changeTrain);
-      historyOutput.map((jsonParam, i, changeTrain) =>{
-        return(
-          <tr key={jsonParam[i]["id"]}>
-          <td>{jsonParam[i]["year"]}年{jsonParam[i]["month"]}月{jsonParam[i]["aDay"]}日({jsonParam[i]["day"]})</td> 
-          <td>{jsonParam[i]["depHour"]} : {jsonParam[i]["depMinute"]} → {jsonParam[i]["arvHour"]} : {jsonParam[i]["arvMinute"]}</td>
-          <td>{jsonParam[i]["departure"]} → {jsonParam[i]["arvHour"]}{changeTrain[i]}</td>
-          <td>{jsonParam[i]["totalCharge"]}</td>
-          <td>{jsonParam[i]["fair"]}</td> 
-          <td>{jsonParam[i]["fee"]}</td> 
-          </tr>
-        )
-      }) 
+    for(let i in paramArray){
+      changeTrain = this.inputChangeTrain(paramArray, i, changeTrain);
     }
+    const historyOutput = paramArray.map((history, index) =>
+        <tr key={history["id"]}>
+        <td>{history["year"]}年{history["month"]}月{history["aday"]}日({history["day"]})</td> 
+        <td>{history["depHour"]} : {history["depMinute"]} → {history["arvHour"]} : {history["arvMinute"]}</td>
+        <td>{history["departure"]} → {history["destination"]}{changeTrain[index]}</td>
+        <td>{history["totalCharge"]}円</td>
+        <td>{history["fair"]}円</td> 
+        <td>{history["fee"]}円</td> 
+        </tr>
+    ) 
     return historyOutput;
   }
 
-  getMonth(yearAndMonth){
+  getYearAndMonth(yearAndMonth){
     const year = yearAndMonth.slice(0,4);
     const month = yearAndMonth.slice(5);
     return '検索履歴　' + year + '年' + month + '月'
